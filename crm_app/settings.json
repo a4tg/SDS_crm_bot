@@ -1,0 +1,9 @@
+{
+  // игнорируем предупреждение "Unknown at rule @tailwind"
+  "css.lint.unknownAtRules": "ignore",
+
+  // подсветка PostCSS, чтобы VS Code понимал директивы
+  "files.associations": {
+    "*.css": "postcss"
+  }
+}
