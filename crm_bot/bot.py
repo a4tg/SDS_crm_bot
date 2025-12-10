@@ -486,26 +486,29 @@ async def my_tasks(message: types.Message) -> None:
     telegram_id = message.from_user.id
     # Получаем задачи, где текущий пользователь постановщик или исполнитель
     try:
-        # Считываем задачи без or_.
+        # Получаем задачи, где текущий пользователь — постановщик
         assigner_resp = (
             supabase.table("tasks")
             .select("id, title, due_date, status, assignee_telegram_id")
             .eq("assigner_telegram_id", telegram_id)
             .execute()
         )
+        # Получаем задачи, где пользователь — исполнитель
         assignee_resp = (
             supabase.table("tasks")
             .select("id, title, due_date, status, assignee_telegram_id")
             .eq("assignee_telegram_id", telegram_id)
             .execute()
         )
-        tasks: List[dict] = []
+        # Объединяем списки по ID, чтобы избежать дублирования
+        tasks_by_id = {}
         if assigner_resp.data:
-            tasks.extend(assigner_resp.data)
+            for t in assigner_resp.data:
+                tasks_by_id[t['id']] = t
         if assignee_resp.data:
             for t in assignee_resp.data:
-                if t not in tasks:
-                    tasks.append(t)
+                tasks_by_id[t['id']] = t
+        tasks = list(tasks_by_id.values())
         tasks.sort(key=lambda x: x.get('due_date') or '')
     except Exception as e:
         logging.error("Ошибка при получении задач: %s", e)
@@ -652,14 +655,15 @@ async def on_mytasks(callback: types.CallbackQuery, state: FSMContext) -> None:
             .eq("assignee_telegram_id", user_id)
             .execute()
         )
-        tasks: List[dict] = []
+        # Объединяем по ID, чтобы избежать дублирования
+        tasks_by_id = {}
         if assigner_resp.data:
-            tasks.extend(assigner_resp.data)
+            for t in assigner_resp.data:
+                tasks_by_id[t['id']] = t
         if assignee_resp.data:
-            # избегаем дублирующих задач, если назначитель и исполнитель совпадают
             for t in assignee_resp.data:
-                if t not in tasks:
-                    tasks.append(t)
+                tasks_by_id[t['id']] = t
+        tasks = list(tasks_by_id.values())
         # Сортировка по дедлайну
         tasks.sort(key=lambda x: x.get('due_date') or '')
     except Exception as e:
@@ -765,6 +769,7 @@ async def on_cancel_action(callback: types.CallbackQuery, state: FSMContext) -> 
     # Проще вызвать функцию напрямую
     user_id = callback.from_user.id
     # Загружаем задачи без использования or_.
+    # Загружаем список задач без дублирования
     assigner_resp = (
         supabase.table("tasks")
         .select("id, title, due_date, status, assignee_telegram_id")
@@ -777,13 +782,14 @@ async def on_cancel_action(callback: types.CallbackQuery, state: FSMContext) -> 
         .eq("assignee_telegram_id", user_id)
         .execute()
     )
-    tasks: List[dict] = []
+    tasks_by_id = {}
     if assigner_resp.data:
-        tasks.extend(assigner_resp.data)
+        for t in assigner_resp.data:
+            tasks_by_id[t['id']] = t
     if assignee_resp.data:
         for t in assignee_resp.data:
-            if t not in tasks:
-                tasks.append(t)
+            tasks_by_id[t['id']] = t
+    tasks = list(tasks_by_id.values())
     tasks.sort(key=lambda x: x.get('due_date') or '')
     if tasks:
         lines = []
