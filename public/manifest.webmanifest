@@ -1,0 +1,46 @@
+﻿{
+  "name": "CRM Tasks",
+  "short_name": "CRM",
+  "description": "CRM задачи и контроль исполнения",
+  "id": "/",
+  "start_url": "/",
+  "scope": "/",
+  "display": "standalone",
+  "display_override": ["standalone", "minimal-ui", "browser"],
+  "orientation": "portrait-primary",
+  "background_color": "#0b0a08",
+  "theme_color": "#0b0a08",
+  "lang": "ru",
+  "categories": ["business", "productivity"],
+  "icons": [
+    {
+      "src": "/icons/icon.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "any"
+    },
+    {
+      "src": "/icons/icon-maskable.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "maskable"
+    }
+  ],
+  "shortcuts": [
+    {
+      "name": "Задачи",
+      "short_name": "Задачи",
+      "url": "/"
+    },
+    {
+      "name": "Клиенты",
+      "short_name": "Клиенты",
+      "url": "/"
+    },
+    {
+      "name": "Филиалы",
+      "short_name": "Филиалы",
+      "url": "/"
+    }
+  ]
+}
